@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ticketsystem
+  datasource:
+    url: ${TICKETSYSTEM_DB_URL:jdbc:mysql://localhost:3306/ticketsystem?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Berlin}
+    username: ${TICKETSYSTEM_DB_USERNAME:ticketsystem}
+    password: ${TICKETSYSTEM_DB_PASSWORD:ticketsystem}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  sql:
+    init:
+      mode: never
+
+server:
+  port: 8080

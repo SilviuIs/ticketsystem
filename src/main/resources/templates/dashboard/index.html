@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<header th:replace="~{fragments/layout :: topbar}"></header>
+<main class="main">
+    <section class="page-header">
+        <div>
+            <p class="page-kicker">Auswertung</p>
+            <h1>Dashboard</h1>
+            <p>Kurze Uebersicht ueber Tickets, Status, Kategorien und Prioritaeten.</p>
+        </div>
+        <a class="btn btn-outline-secondary" href="/tickets">Zur Ticketliste</a>
+    </section>
+
+    <section class="metric-grid">
+        <article class="metric-card">
+            <span class="metric-label">Tickets gesamt</span>
+            <strong class="metric-value" th:text="${statistics.totalTickets()}">0</strong>
+        </article>
+        <article class="metric-card">
+            <span class="metric-label">Aktive Tickets</span>
+            <strong class="metric-value" th:text="${statistics.activeTickets()}">0</strong>
+        </article>
+        <article class="metric-card">
+            <span class="metric-label">Rueckfragen offen</span>
+            <strong class="metric-value" th:text="${statistics.waitingForUserTickets()}">0</strong>
+        </article>
+        <article class="metric-card">
+            <span class="metric-label">Manuelle Pruefung</span>
+            <strong class="metric-value" th:text="${statistics.manualReviewTickets()}">0</strong>
+        </article>
+        <article class="metric-card">
+            <span class="metric-label">Abgeschlossen</span>
+            <strong class="metric-value" th:text="${statistics.completedTickets()}">0</strong>
+        </article>
+        <article class="metric-card">
+            <span class="metric-label">Nicht zugewiesen</span>
+            <strong class="metric-value" th:text="${statistics.unassignedTickets()}">0</strong>
+        </article>
+    </section>
+
+    <section class="dashboard-grid">
+        <article class="panel">
+            <h2>Status</h2>
+            <div class="table-wrap">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Anzahl</th>
+                    <th>Anteil</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${statistics.statusCounts()}">
+                    <td th:text="${item.label()}">Offen</td>
+                    <td th:text="${item.count()}">0</td>
+                    <td>
+                        <div class="stat-bar" th:title="${item.percentage()} + '%'">
+                            <span class="stat-bar-fill" th:style="'width: ' + ${item.percentage()} + '%'"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </article>
+
+        <article class="panel">
+            <h2>Finale Kategorien</h2>
+            <div class="table-wrap">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>Kategorie</th>
+                    <th>Anzahl</th>
+                    <th>Anteil</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${statistics.categoryCounts()}">
+                    <td th:text="${item.label()}">Hardware</td>
+                    <td th:text="${item.count()}">0</td>
+                    <td>
+                        <div class="stat-bar" th:title="${item.percentage()} + '%'">
+                            <span class="stat-bar-fill green" th:style="'width: ' + ${item.percentage()} + '%'"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </article>
+
+        <article class="panel">
+            <h2>Finale Prioritaeten</h2>
+            <div class="table-wrap">
+            <table class="table table-sm align-middle">
+                <thead>
+                <tr>
+                    <th>Prioritaet</th>
+                    <th>Anzahl</th>
+                    <th>Anteil</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${statistics.priorityCounts()}">
+                    <td th:text="${item.label()}">Level 1</td>
+                    <td th:text="${item.count()}">0</td>
+                    <td>
+                        <div class="stat-bar" th:title="${item.percentage()} + '%'">
+                            <span class="stat-bar-fill amber" th:style="'width: ' + ${item.percentage()} + '%'"></span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            </div>
+        </article>
+    </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<body>
+<header class="navbar navbar-expand-lg bg-white border-bottom sticky-top shadow-sm" th:fragment="topbar">
+    <div class="container-xl">
+        <a class="navbar-brand d-flex align-items-center gap-2" href="/tickets" aria-label="Zur Ticketuebersicht">
+            <span class="brand-mark">TV</span>
+            <span>
+                <span class="brand-title d-block">Ticketverwaltung</span>
+                <span class="brand-subtitle d-block">IT Support</span>
+            </span>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavigation"
+                aria-controls="mainNavigation" aria-expanded="false" aria-label="Navigation oeffnen">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavigation">
+            <nav class="navbar-nav me-auto mb-2 mb-lg-0" aria-label="Hauptnavigation">
+                <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/tickets')} ? ' active'" href="/tickets">Tickets</a>
+                <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/dashboard')} ? ' active'" th:if="${isSupport or isAdmin}" href="/dashboard">Dashboard</a>
+                <a class="nav-link" th:classappend="${#strings.startsWith(currentPath, '/admin/classification-rules')} ? ' active'" th:if="${isAdmin}" href="/admin/classification-rules">Klassifikationsregeln</a>
+            </nav>
+
+            <div class="d-flex flex-wrap align-items-center gap-2" th:if="${currentUsername != null}">
+                <div class="account-pill" aria-label="Aktiver Benutzer">
+                    <span class="session-avatar" th:text="${#strings.substring(currentUsername, 0, 1).toUpperCase()}">A</span>
+                    <span class="session-user" th:text="${currentUsername}">admin</span>
+                    <span class="badge text-bg-dark" th:if="${isAdmin}">Admin</span>
+                    <span class="badge text-bg-info" th:if="${isSupport and !isAdmin}">Support</span>
+                    <span class="badge text-bg-secondary" th:unless="${isSupport or isAdmin}">User</span>
+                </div>
+                <form class="m-0" th:action="@{/logout}" method="post">
+                    <button class="btn btn-outline-primary btn-sm" type="submit">Logout</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+</body>
+</html>
