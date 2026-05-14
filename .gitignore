@@ -12,6 +12,9 @@ target/
 .env
 .env.*
 
+### IHK submission files ###
+ihk/
+
 ### STS ###
 .apt_generated
 .classpath
