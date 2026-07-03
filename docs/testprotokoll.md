@@ -15,9 +15,12 @@ Die automatischen Tests werden mit Maven gestartet:
 ./mvnw test
 ```
 
+Die Spring-Boot-Tests verwenden das Profil `test` mit H2-In-Memory-Datenbank.
+MySQL ist fuer den automatischen Testlauf nicht erforderlich.
+
 | Testklasse | Was wird getestet? | Erwartung |
 | --- | --- | --- |
-| `TicketsystemApplicationTests` | Spring-Kontext mit MySQL | Anwendung startet ohne Fehler |
+| `TicketsystemApplicationTests` | Spring-Kontext mit Testprofil und H2 | Anwendung startet ohne Fehler |
 | `ClassificationServiceTest` | Klassifikation mit Regeln | Passende Texte werden klassifiziert. Unklare Texte gehen zur manuellen Pruefung |
 | `TicketServiceTest` | Ticketlogik | Support sieht alle Tickets. Benutzer sehen eigene Tickets. Neue Tickets bekommen Klassifikation und Historie |
 | `DashboardServiceTest` | Dashboard | Zahlen und Prozentwerte werden gebaut |

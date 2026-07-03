@@ -304,9 +304,9 @@ Die Tests pruefen unter anderem:
 - Admin-Regeln
 - REST API
 
-Wichtig: Die Anwendung nutzt MySQL direkt.
-Darum muss MySQL fuer den Testlauf erreichbar sein.
-Die Datenbank `ticketsystem` muss das richtige Schema haben.
+Wichtig: Die automatischen Tests nutzen das Profil `test` mit einer H2-In-Memory-Datenbank.
+Darum ist fuer `./mvnw test` kein lokaler MySQL-Server noetig.
+Die Anwendung selbst nutzt weiterhin MySQL.
 
 Das Testprotokoll liegt hier:
 
@@ -320,7 +320,8 @@ docs/testprotokoll.md
 - Vorschlag und finale Klassifikation werden getrennt gespeichert.
 - Statusaenderungen werden in einer eigenen Historie gespeichert.
 - Support trifft die finale Entscheidung.
-- MySQL wird direkt genutzt. Es gibt keine extra In-Memory-Datenbank.
+- MySQL wird fuer die laufende Anwendung direkt genutzt.
+- Automatische Tests laufen mit einer H2-In-Memory-Datenbank im Profil `test`.
 
 ## Moegliche Erweiterungen
 
