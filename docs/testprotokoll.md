@@ -27,6 +27,7 @@ MySQL ist fuer den automatischen Testlauf nicht erforderlich.
 | `ClassificationRuleAdminServiceTest` | Admin-Regeln | Tokens werden richtig gelesen. Falsche Gewichtungen werden abgelehnt |
 | `ClassificationRuleAdminServicePersistenceTest` | Speichern von Regeln | Aendern von Tokens erzeugt keinen Unique-Key-Fehler |
 | `ApiControllerTest` | REST API | API liefert passende DTO-Antworten |
+| `SecurityConfigIntegrationTest` | API- und Web-Security | API liefert 401 ohne Login-Redirect. Web leitet zum Login weiter. API-POST funktioniert mit Basic Auth ohne CSRF-Token |
 
 ## Manuelle Tests
 

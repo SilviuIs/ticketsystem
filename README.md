@@ -303,6 +303,7 @@ Die Tests pruefen unter anderem:
 - Dashboard-Statistik
 - Admin-Regeln
 - REST API
+- API- und Web-Security
 
 Wichtig: Die automatischen Tests nutzen das Profil `test` mit einer H2-In-Memory-Datenbank.
 Darum ist fuer `./mvnw test` kein lokaler MySQL-Server noetig.
