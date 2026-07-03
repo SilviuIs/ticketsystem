@@ -13,7 +13,7 @@
         <div>
             <p class="page-kicker">Administration</p>
             <h1>Klassifikationsregeln</h1>
-            <p>Hier kannst du Regeln fuer die automatische Klassifikation bearbeiten und testen.</p>
+            <p>Hier kannst du Regeln für die automatische Klassifikation bearbeiten und testen.</p>
         </div>
         <a class="btn btn-primary" href="/admin/classification-rules/new">Neue Regel</a>
     </section>
@@ -36,7 +36,7 @@
             <p><strong>Priorität:</strong> <span th:text="${testResult.priority() != null ? testResult.priority().name : '-'}">Level 2</span></p>
             <p><strong>Score:</strong> <span th:text="${testResult.score()}">9</span></p>
             <p><strong>Confidence:</strong> <span th:text="${testResult.confidenceLevel()}">1.00</span></p>
-            <p><strong>Manuelle Pruefung:</strong> <span th:text="${testResult.manualReviewRequired() ? 'Ja' : 'Nein'}">Nein</span></p>
+            <p><strong>Manuelle Prüfung:</strong> <span th:text="${testResult.manualReviewRequired() ? 'Ja' : 'Nein'}">Nein</span></p>
             <p th:text="${testResult.reason()}">Regel erreicht Punkte</p>
         </div>
     </section>

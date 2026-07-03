@@ -15,7 +15,7 @@
             <h1 th:text="${formMode == 'edit' ? 'Regel bearbeiten' : 'Neue Regel'}">Neue Regel</h1>
             <p>Hier legst du fest, wann ein Ticket automatisch eine Kategorie bekommt.</p>
         </div>
-        <a class="btn btn-outline-secondary" href="/admin/classification-rules">Zurueck zu den Regeln</a>
+        <a class="btn btn-outline-secondary" href="/admin/classification-rules">Zurück zu den Regeln</a>
     </section>
 
     <section class="content-grid">
@@ -36,16 +36,16 @@
             </select>
             <p class="text-danger small mt-1" th:if="${#fields.hasErrors('categoryId')}" th:errors="*{categoryId}">Kategorie fehlt</p>
 
-            <label class="form-label mt-3" for="priorityId">Prioritaet</label>
+            <label class="form-label mt-3" for="priorityId">Priorität</label>
             <select class="form-select" id="priorityId" th:field="*{priorityId}">
                 <option value="">Bitte wählen</option>
                 <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}">Level 2</option>
             </select>
-            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('priorityId')}" th:errors="*{priorityId}">Prioritaet fehlt</p>
+            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('priorityId')}" th:errors="*{priorityId}">Priorität fehlt</p>
 
             <label class="form-label mt-3" for="threshold">Threshold</label>
-            <input class="form-control" id="threshold" type="number" min="0" th:field="*{threshold}">
-            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('threshold')}" th:errors="*{threshold}">Threshold ungueltig</p>
+            <input class="form-control" id="threshold" type="number" min="1" th:field="*{threshold}">
+            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('threshold')}" th:errors="*{threshold}">Threshold ungültig</p>
 
             <label class="form-check mt-3" for="active">
                 <input class="form-check-input" id="active" type="checkbox" th:field="*{active}">
@@ -57,7 +57,7 @@
             <label class="form-label mt-3" for="termsText">Tokens mit Gewichtung</label>
             <textarea class="form-control" id="termsText" th:field="*{termsText}" placeholder="vpn:5&#10;wlan:4&#10;internet:3"></textarea>
             <p class="meta">Format: ein Token pro Zeile oder getrennt mit Komma/Semikolon. Beispiel: <code>drucker:5</code>.</p>
-            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('termsText')}" th:errors="*{termsText}">Tokens ungueltig</p>
+            <p class="text-danger small mt-1" th:if="${#fields.hasErrors('termsText')}" th:errors="*{termsText}">Tokens ungültig</p>
 
             <div class="form-actions">
                 <button class="btn btn-primary" type="submit">Speichern</button>
@@ -71,7 +71,7 @@
             <p class="meta">Eine Regel wird nur genutzt, wenn der Score den Threshold erreicht.</p>
             <p><span class="badge text-bg-secondary">Token</span> Begriff im Tickettext</p>
             <p><span class="badge text-bg-secondary">Gewichtung</span> Punktzahl pro Treffer</p>
-            <p><span class="badge text-bg-secondary">Threshold</span> Mindestscore fuer automatische Zuordnung</p>
+            <p><span class="badge text-bg-secondary">Threshold</span> Mindestscore für automatische Zuordnung</p>
         </aside>
     </section>
 </main>

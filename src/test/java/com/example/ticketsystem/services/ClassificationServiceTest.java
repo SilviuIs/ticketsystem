@@ -69,4 +69,22 @@ class ClassificationServiceTest {
 		assertThat(result.manualReviewRequired()).isTrue();
 		assertThat(result.reason()).contains("Mindestschwellenwert");
 	}
+
+	@Test
+	void classifyIgnoresInvalidZeroThresholdRule() {
+		Category hardware = new Category("Hardware", "Geraete und Peripherie");
+		Priority level2 = new Priority("Level 2", 2, "Normaler Supportfall");
+		ClassificationRule invalidRule = new ClassificationRule("Invalid Rule", hardware, level2, 0);
+		invalidRule.addTerm("drucker", 5);
+
+		when(ruleRepository.findByActiveTrue()).thenReturn(List.of(invalidRule));
+
+		ClassificationResult result = classificationService.classify("Drucker", "Drucker defekt");
+
+		assertThat(result.category()).isNull();
+		assertThat(result.priority()).isNull();
+		assertThat(result.score()).isEqualTo(0);
+		assertThat(result.confidenceLevel()).isEqualByComparingTo(BigDecimal.ZERO);
+		assertThat(result.manualReviewRequired()).isTrue();
+	}
 }

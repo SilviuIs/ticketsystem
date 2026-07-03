@@ -39,7 +39,7 @@
                 <span class="badge text-bg-secondary" th:text="${ticket.finalPriority != null ? ticket.finalPriority.name : 'Keine Prioritaet'}">Level 2</span>
                 <span class="badge text-bg-warning" th:if="${not isSupport and not isAdmin and ticket.status.name() == 'WAITING_FOR_USER'}">Antwort erforderlich</span>
                 <span class="badge text-bg-warning" th:if="${(isSupport or isAdmin) and ticket.status.name() == 'WAITING_FOR_USER'}">Wartet auf Benutzer</span>
-                <span class="badge text-bg-warning" th:if="${ticket.manualReviewRequired}">Manuelle Pruefung</span>
+                <span class="badge text-bg-warning" th:if="${ticket.manualReviewRequired}">Manuelle Prüfung</span>
                 <span class="badge text-bg-success" th:unless="${ticket.manualReviewRequired}">Klassifiziert</span>
             </p>
         </article>

@@ -12,13 +12,13 @@
     <section class="error-panel">
         <p class="error-code">403</p>
         <p class="page-kicker">Zugriff verweigert</p>
-        <h1>Dieser Bereich ist nicht fuer deine Rolle freigegeben.</h1>
+        <h1>Dieser Bereich ist nicht für deine Rolle freigegeben.</h1>
         <p class="meta">
-            Die Anwendung schuetzt administrative und supportbezogene Funktionen ueber rollenbasierte Berechtigungen.
-            Melde dich mit einem passenden Benutzerkonto an oder kehre zur Ticketuebersicht zurueck.
+            Die Anwendung schützt administrative und supportbezogene Funktionen über rollenbasierte Berechtigungen.
+            Melde dich mit einem passenden Benutzerkonto an oder kehre zur Ticketübersicht zurück.
         </p>
         <div class="form-actions">
-            <a class="btn btn-primary" href="/tickets" th:if="${currentUsername != null}">Zur Ticketuebersicht</a>
+            <a class="btn btn-primary" href="/tickets" th:if="${currentUsername != null}">Zur Ticketübersicht</a>
             <a class="btn btn-primary" href="/login" th:unless="${currentUsername != null}">Zum Login</a>
         </div>
     </section>

@@ -153,12 +153,19 @@ Wenn der Benutzer antwortet, geht der Status wieder auf `IN_PROGRESS`.
 
 ## Demo-Zugaenge
 
-Beim ersten Start werden Demo-Daten erstellt:
+Demo-Daten werden nur erstellt, wenn das Spring-Profil `demo` aktiv ist.
+Dann werden diese Zugaenge angelegt:
 
 ```text
 user / password
 support / password
 admin / password
+```
+
+Start mit Demo-Daten:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
 ## Start mit MySQL

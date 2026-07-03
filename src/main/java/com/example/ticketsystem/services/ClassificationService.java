@@ -28,6 +28,7 @@ public class ClassificationService {
 		// Titel und Beschreibung werden fuer die Suche vereinfacht.
 		String normalizedText = normalize(title + " " + description);
 		List<RuleScore> scores = ruleRepository.findByActiveTrue().stream()
+				.filter(rule -> rule.getThreshold() > 0)
 				.map(rule -> scoreRule(rule, normalizedText))
 				.sorted(Comparator.comparingInt(RuleScore::score).reversed())
 				.toList();

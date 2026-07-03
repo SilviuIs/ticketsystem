@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS classification_rules (
         FOREIGN KEY (category_id) REFERENCES categories (id),
     CONSTRAINT fk_classification_rules_priority
         FOREIGN KEY (priority_id) REFERENCES priorities (id),
-    CONSTRAINT chk_classification_rules_threshold CHECK (threshold >= 0)
+    CONSTRAINT chk_classification_rules_threshold CHECK (threshold > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS classification_terms (

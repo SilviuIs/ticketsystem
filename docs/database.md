@@ -51,12 +51,19 @@ export TICKETSYSTEM_DB_PASSWORD="ticketsystem"
 
 ## Demo-Zugaenge
 
-Beim ersten Start werden Demo-Benutzer erstellt:
+Demo-Benutzer werden nur erstellt, wenn das Spring-Profil `demo` aktiv ist.
+Dann werden diese Zugaenge angelegt:
 
 ```text
 user / password
 support / password
 admin / password
+```
+
+Start mit Demo-Daten:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
 ## Wichtige Tabellen

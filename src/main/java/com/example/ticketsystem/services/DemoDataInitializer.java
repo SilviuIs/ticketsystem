@@ -14,11 +14,13 @@ import com.example.ticketsystem.repository.RoleRepository;
 import com.example.ticketsystem.repository.TicketRepository;
 import java.util.List;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Profile("demo")
 public class DemoDataInitializer implements CommandLineRunner {
 
 	private final RoleRepository roleRepository;

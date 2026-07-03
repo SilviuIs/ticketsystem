@@ -17,7 +17,7 @@ public class ClassificationRuleForm {
 	@NotNull
 	private Long priorityId;
 
-	@Min(0)
+	@Min(1)
 	private int threshold;
 
 	private boolean active = true;

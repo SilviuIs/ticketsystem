@@ -76,7 +76,8 @@ public class TicketService {
 		ticket.setCreatedBy(creator);
 
 		// Neue Tickets bekommen sofort einen Klassifikationsvorschlag.
-		ClassificationResult result = classificationService.classify(form.getTitle(), form.getDescription());
+		ClassificationResult result = classificationService.classify(form.getTitle(),
+				form.getDescription());
 		ticket.setSuggestedCategory(result.category());
 		ticket.setSuggestedPriority(result.priority());
 		ticket.setFinalCategory(result.category());
@@ -91,7 +92,8 @@ public class TicketService {
 		}
 
 		Ticket saved = ticketRepository.save(ticket);
-		historyRepository.save(new TicketStatusHistory(saved, null, saved.getStatus(), creator, "Ticket erstellt"));
+		historyRepository.save(new TicketStatusHistory(saved, null, saved.getStatus(),
+				creator, "Ticket erstellt"));
 		return saved;
 	}
 
