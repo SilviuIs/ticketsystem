@@ -99,3 +99,9 @@ ddl-auto: validate
 
 Die Tabellen werden also nicht automatisch neu erzeugt.
 Sie werden ueber das Schema-Skript gepflegt.
+
+## Tests
+
+Automatische Tests verwenden nicht diese MySQL-Datenbank.
+Sie laufen mit dem Profil `test` und einer H2-In-Memory-Datenbank.
+Dadurch kann `./mvnw test` ohne lokalen MySQL-Server ausgefuehrt werden.

@@ -17,6 +17,7 @@ Die automatischen Tests werden mit Maven gestartet:
 
 Die Spring-Boot-Tests verwenden das Profil `test` mit H2-In-Memory-Datenbank.
 MySQL ist fuer den automatischen Testlauf nicht erforderlich.
+Der erwartete Stand ist: alle automatischen Tests laufen erfolgreich durch.
 
 | Testklasse | Was wird getestet? | Erwartung |
 | --- | --- | --- |
@@ -75,3 +76,4 @@ Die Tests decken die wichtigsten Bereiche ab:
 - REST API
 - Formularpruefung
 - Bootstrap-Oberflaeche
+- Security-Verhalten fuer getrennte API- und Web-Zugriffe

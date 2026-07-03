@@ -42,6 +42,41 @@ Support kann diesen Vorschlag pruefen und final speichern.
 - MySQL
 - Maven
 
+## Schnellstart fuer Bewertung
+
+Automatische Tests ausfuehren:
+
+```bash
+./mvnw test
+```
+
+Die Tests verwenden H2 im Profil `test`.
+Ein lokaler MySQL-Server ist dafuer nicht noetig.
+
+Anwendung mit MySQL und Demo-Daten starten:
+
+```bash
+mysql -u root -p < src/main/resources/db/mysql/schema.sql
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
+```
+
+Falls der Datenbankbenutzer `ticketsystem` noch nicht existiert, siehe Abschnitt `MySQL-Konfiguration`.
+
+Danach:
+
+```text
+http://localhost:8080
+user / password
+support / password
+admin / password
+```
+
+Der aktuelle Projektstand fuer die Abgabe ist zusammengefasst in:
+
+```text
+docs/abgabe.md
+```
+
 ## Weboberflaeche
 
 Die Weboberflaeche wird mit Thymeleaf und Bootstrap 5 umgesetzt.
@@ -253,6 +288,7 @@ Mehr Informationen stehen in:
 
 ```text
 docs/database.md
+docs/abgabe.md
 ```
 
 ## REST API
