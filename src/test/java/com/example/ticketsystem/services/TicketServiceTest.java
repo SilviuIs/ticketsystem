@@ -24,6 +24,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
 class TicketServiceTest {
@@ -68,6 +70,29 @@ class TicketServiceTest {
 
 		assertThat(ticketService.findVisibleTickets()).containsExactly(ticket);
 		verify(ticketRepository).findByCreatedByUsername("user");
+	}
+
+	@Test
+	void findVisibleTicketsPageReturnsAllTicketsForSupport() {
+		Ticket ticket = new Ticket();
+		PageRequest pageRequest = PageRequest.of(0, 10);
+		when(authenticatedUserService.isSupportOrAdmin()).thenReturn(true);
+		when(ticketRepository.findAll(pageRequest)).thenReturn(new PageImpl<>(List.of(ticket), pageRequest, 1));
+
+		assertThat(ticketService.findVisibleTickets(pageRequest).getContent()).containsExactly(ticket);
+		verify(ticketRepository).findAll(pageRequest);
+	}
+
+	@Test
+	void findVisibleTicketsPageReturnsOnlyOwnTicketsForNormalUser() {
+		Ticket ticket = new Ticket();
+		PageRequest pageRequest = PageRequest.of(0, 10);
+		when(authenticatedUserService.isSupportOrAdmin()).thenReturn(false);
+		when(authenticatedUserService.currentUsername()).thenReturn("user");
+		when(ticketRepository.findByCreatedByUsername("user", pageRequest)).thenReturn(new PageImpl<>(List.of(ticket), pageRequest, 1));
+
+		assertThat(ticketService.findVisibleTickets(pageRequest).getContent()).containsExactly(ticket);
+		verify(ticketRepository).findByCreatedByUsername("user", pageRequest);
 	}
 
 	@Test

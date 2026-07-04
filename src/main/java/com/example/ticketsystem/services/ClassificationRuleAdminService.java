@@ -10,11 +10,15 @@ import com.example.ticketsystem.repository.ClassificationRuleRepository;
 import com.example.ticketsystem.repository.PriorityRepository;
 import java.util.Comparator;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ClassificationRuleAdminService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClassificationRuleAdminService.class);
 
 	private final ClassificationRuleRepository ruleRepository;
 	private final CategoryRepository categoryRepository;
@@ -62,7 +66,9 @@ public class ClassificationRuleAdminService {
 		rule.setActive(form.isActive());
 		// Tokens aus dem Formular lesen.
 		rule.replaceTerms(parseTerms(rule, form.getTermsText()));
-		return ruleRepository.save(rule);
+		ClassificationRule saved = ruleRepository.save(rule);
+		LOGGER.info("classification_rule_created id={} name={} active={}", saved.getId(), saved.getName(), saved.isActive());
+		return saved;
 	}
 
 	@Transactional
@@ -78,12 +84,14 @@ public class ClassificationRuleAdminService {
 		rule.replaceTerms(List.of());
 		ruleRepository.flush();
 		rule.replaceTerms(parsedTerms);
+		LOGGER.info("classification_rule_updated id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
 	}
 
 	@Transactional
 	public void toggleRule(Long id) {
 		ClassificationRule rule = findRule(id);
 		rule.setActive(!rule.isActive());
+		LOGGER.info("classification_rule_toggled id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
 	}
 
 	private Category findCategory(Long id) {

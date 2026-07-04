@@ -20,11 +20,12 @@ MySQL ist fuer den Testlauf nicht erforderlich.
 Anwendung mit Demo-Daten:
 
 ```bash
-mysql -u root -p < src/main/resources/db/mysql/schema.sql
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
+Vorher muss die lokale MySQL-Datenbank `ticketsystem` existieren.
 Falls der Datenbankbenutzer `ticketsystem` noch nicht existiert, steht der SQL-Befehl in `README.md` und `docs/database.md`.
+Die Tabellen werden durch Flyway-Migrationen angelegt.
 
 Danach ist die Anwendung erreichbar unter:
 
@@ -56,12 +57,15 @@ admin / password
 ## Technische Entscheidungen
 
 - Runtime-Datenbank ist MySQL.
+- Schema-Aenderungen laufen ueber Flyway.
 - Hibernate validiert das Schema mit `ddl-auto: validate`.
 - Demo-Daten werden nur mit Profil `demo` angelegt.
 - Automatische Tests nutzen H2 im Profil `test`.
 - API- und Web-Security sind getrennt konfiguriert.
 - API-Zugriffe ohne Login liefern `401` statt Login-Redirect.
 - Web-Zugriffe ohne Login leiten zur Login-Seite weiter.
+- Production-Zugangsdaten werden ueber Umgebungsvariablen gelesen.
+- Actuator Health/Info sind oeffentlich, weitere Actuator-Endpunkte sind geschuetzt.
 
 ## Dokumentation
 
@@ -71,5 +75,6 @@ admin / password
 
 ## Bekannte Abgrenzung
 
-Die ER-Diagramm-Dateien sind derzeit nicht Teil des finalen Abgabe-Commits.
-Relevant fuer die Bewertung sind Code, Schema, Tests und die textuelle Dokumentation.
+Rate Limiting ist noch nicht cluster-faehig umgesetzt.
+Ein dauerhaftes Audit-Log als eigene Datenbanktabelle ist ebenfalls ein sinnvoller naechster Produktionsschritt.
+Aktuell gibt es service-level Logging fuer wichtige Support- und Admin-Aktionen.

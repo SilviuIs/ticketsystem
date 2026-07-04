@@ -44,6 +44,20 @@
             </p>
         </article>
     </section>
+
+    <nav class="mt-4" aria-label="Ticket-Seiten" th:if="${ticketPage != null and ticketPage.totalPages > 1}">
+        <ul class="pagination">
+            <li class="page-item" th:classappend="${ticketPage.first} ? 'disabled'">
+                <a class="page-link" th:href="@{/tickets(page=${ticketPage.number - 1},size=${ticketPage.size})}">Zurueck</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link" th:text="'Seite ' + ${ticketPage.number + 1} + ' von ' + ${ticketPage.totalPages}">Seite 1 von 1</span>
+            </li>
+            <li class="page-item" th:classappend="${ticketPage.last} ? 'disabled'">
+                <a class="page-link" th:href="@{/tickets(page=${ticketPage.number + 1},size=${ticketPage.size})}">Weiter</a>
+            </li>
+        </ul>
+    </nav>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

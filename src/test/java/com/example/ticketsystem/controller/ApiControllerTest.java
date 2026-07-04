@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.example.ticketsystem.models.ApiDtos.ClassificationPreviewRequest;
 import com.example.ticketsystem.models.ApiDtos.ClassificationPreviewResponse;
 import com.example.ticketsystem.models.ApiDtos.CreateTicketRequest;
+import com.example.ticketsystem.models.ApiDtos.PageResponse;
 import com.example.ticketsystem.models.ApiDtos.TicketResponse;
 import com.example.ticketsystem.models.Category;
 import com.example.ticketsystem.models.ClassificationResult;
@@ -26,6 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -46,6 +50,25 @@ class ApiControllerTest {
 
 	@InjectMocks
 	private ApiController apiController;
+
+	@Test
+	void listTicketsReturnsPagedResponse() {
+		Ticket ticket = new Ticket();
+		ReflectionTestUtils.setField(ticket, "id", 42L);
+		ticket.setTitle("VPN Problem");
+		ticket.setDescription("Benutzer kann sich nicht verbinden");
+		PageRequest pageRequest = PageRequest.of(0, 20, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+		when(ticketService.findVisibleTickets(pageRequest)).thenReturn(new PageImpl<>(List.of(ticket), pageRequest, 1));
+
+		PageResponse<TicketResponse> response = apiController.listTickets(0, 20);
+
+		assertThat(response.page()).isZero();
+		assertThat(response.size()).isEqualTo(20);
+		assertThat(response.totalElements()).isEqualTo(1);
+		assertThat(response.content()).singleElement()
+				.satisfies(item -> assertThat(item.title()).isEqualTo("VPN Problem"));
+	}
 
 	@Test
 	void createTicketReturnsCreatedResponse() {

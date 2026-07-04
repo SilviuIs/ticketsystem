@@ -4,15 +4,58 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.domain.Page;
 
 public final class ApiDtos {
 
 	private ApiDtos() {
 	}
 
-	public record ErrorResponse(String message) {
+	public record ErrorResponse(
+			Instant timestamp,
+			int status,
+			String error,
+			String message,
+			String path,
+			List<FieldErrorResponse> fieldErrors
+	) {
+
+		public static ErrorResponse of(int status, String error, String message, String path) {
+			return new ErrorResponse(Instant.now(), status, error, message, path, List.of());
+		}
+
+		public static ErrorResponse of(int status, String error, String message, String path, List<FieldErrorResponse> fieldErrors) {
+			return new ErrorResponse(Instant.now(), status, error, message, path, fieldErrors);
+		}
+	}
+
+	public record FieldErrorResponse(String field, String message) {
+	}
+
+	public record PageResponse<T>(
+			List<T> content,
+			int page,
+			int size,
+			long totalElements,
+			int totalPages,
+			boolean first,
+			boolean last
+	) {
+
+		public static <T> PageResponse<T> from(Page<?> page, List<T> content) {
+			return new PageResponse<>(
+					content,
+					page.getNumber(),
+					page.getSize(),
+					page.getTotalElements(),
+					page.getTotalPages(),
+					page.isFirst(),
+					page.isLast()
+			);
+		}
 	}
 
 	public record ReferenceResponse(Long id, String name) {

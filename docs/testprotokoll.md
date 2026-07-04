@@ -28,7 +28,7 @@ Der erwartete Stand ist: alle automatischen Tests laufen erfolgreich durch.
 | `ClassificationRuleAdminServiceTest` | Admin-Regeln | Tokens werden richtig gelesen. Falsche Gewichtungen werden abgelehnt |
 | `ClassificationRuleAdminServicePersistenceTest` | Speichern von Regeln | Aendern von Tokens erzeugt keinen Unique-Key-Fehler |
 | `ApiControllerTest` | REST API | API liefert passende DTO-Antworten |
-| `SecurityConfigIntegrationTest` | API- und Web-Security | API liefert 401 ohne Login-Redirect. Web leitet zum Login weiter. API-POST funktioniert mit Basic Auth ohne CSRF-Token |
+| `SecurityConfigIntegrationTest` | API- und Web-Security | API liefert 401 ohne Login-Redirect. Web leitet zum Login weiter. API-POST funktioniert mit Basic Auth ohne CSRF-Token. API-Fehler nutzen ein einheitliches JSON-Format. Actuator Health ist oeffentlich und Metrics geschuetzt |
 
 ## Manuelle Tests
 
@@ -77,3 +77,4 @@ Die Tests decken die wichtigsten Bereiche ab:
 - Formularpruefung
 - Bootstrap-Oberflaeche
 - Security-Verhalten fuer getrennte API- und Web-Zugriffe
+- Standardisiertes API-Fehlerformat und Actuator Health

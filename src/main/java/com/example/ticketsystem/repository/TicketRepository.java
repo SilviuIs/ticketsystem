@@ -5,6 +5,8 @@ import com.example.ticketsystem.models.Ticket;
 import com.example.ticketsystem.models.TicketStatus;
 import java.util.Collection;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -15,8 +17,15 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 	@EntityGraph(attributePaths = {"createdBy", "assignedTo", "suggestedCategory", "suggestedPriority", "finalCategory", "finalPriority"})
 	List<Ticket> findAll();
 
+	@Override
+	@EntityGraph(attributePaths = {"createdBy", "assignedTo", "suggestedCategory", "suggestedPriority", "finalCategory", "finalPriority"})
+	Page<Ticket> findAll(Pageable pageable);
+
 	@EntityGraph(attributePaths = {"createdBy", "assignedTo", "suggestedCategory", "suggestedPriority", "finalCategory", "finalPriority"})
 	List<Ticket> findByCreatedByUsername(String username);
+
+	@EntityGraph(attributePaths = {"createdBy", "assignedTo", "suggestedCategory", "suggestedPriority", "finalCategory", "finalPriority"})
+	Page<Ticket> findByCreatedByUsername(String username, Pageable pageable);
 
 	long countByStatus(TicketStatus status);
 

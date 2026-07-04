@@ -40,6 +40,8 @@ Support kann diesen Vorschlag pruefen und final speichern.
 - Spring Security
 - Spring Data JPA / Hibernate
 - MySQL
+- Flyway
+- Spring Boot Actuator
 - Maven
 
 ## Schnellstart fuer Bewertung
@@ -55,12 +57,13 @@ Ein lokaler MySQL-Server ist dafuer nicht noetig.
 
 Anwendung mit MySQL und Demo-Daten starten:
 
+Vorher muss die Datenbank `ticketsystem` existieren.
+Falls der Datenbankbenutzer `ticketsystem` noch nicht existiert, siehe Abschnitt `MySQL-Konfiguration`.
+Die Tabellen werden beim Start ueber Flyway-Migrationen angelegt.
+
 ```bash
-mysql -u root -p < src/main/resources/db/mysql/schema.sql
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
-
-Falls der Datenbankbenutzer `ticketsystem` noch nicht existiert, siehe Abschnitt `MySQL-Konfiguration`.
 
 Danach:
 
@@ -124,7 +127,8 @@ src/main/java/com/example/ticketsystem
 src/main/resources
 +-- templates     Thymeleaf-Seiten mit Bootstrap
 +-- static/css    kleine Anpassungen zu Bootstrap
-+-- db/mysql      MySQL-Schema
++-- db/migration  versionierte Flyway-Migrationen
++-- db/mysql      altes Schema-Skript als Referenz
 +-- application.yaml
 ```
 
@@ -205,12 +209,12 @@ Start mit Demo-Daten:
 
 ## Start mit MySQL
 
-Die Anwendung nutzt standardmaessig MySQL.
-Vor dem Start muss die Datenbank `ticketsystem` existieren.
-Das Schema muss importiert sein.
+Die Anwendung nutzt MySQL.
+Vor dem Start muss die Datenbank existieren.
+Tabellen und Constraints werden ueber Flyway-Migrationen gepflegt.
 
 ```bash
-./mvnw spring-boot:run
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
 Danach ist die Anwendung hier erreichbar:
@@ -227,7 +231,7 @@ Wenn Port `8080` schon belegt ist:
 
 ## MySQL-Konfiguration
 
-Standardwerte:
+Demo-Profil:
 
 ```text
 Database: ticketsystem
@@ -235,41 +239,50 @@ User: ticketsystem
 Password: ticketsystem
 ```
 
-Datenbankbenutzer anlegen:
+Das Demo-Profil darf lokale Demo-Zugangsdaten verwenden.
+Das Produktionsprofil liest Datenbankzugangsdaten ohne Fallback aus Umgebungsvariablen.
+
+Datenbank und Datenbankbenutzer lokal anlegen:
 
 ```sql
+CREATE DATABASE IF NOT EXISTS ticketsystem
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'ticketsystem'@'localhost' IDENTIFIED BY 'ticketsystem';
 GRANT ALL PRIVILEGES ON ticketsystem.* TO 'ticketsystem'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-Schema importieren:
-
-```bash
-mysql -u root -p < src/main/resources/db/mysql/schema.sql
-```
-
-Starten:
-
-```bash
-./mvnw spring-boot:run
-```
-
-Die Zugangsdaten koennen mit Umgebungsvariablen geaendert werden:
+Production-Start:
 
 ```bash
 export TICKETSYSTEM_DB_URL="jdbc:mysql://localhost:3306/ticketsystem?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Berlin"
 export TICKETSYSTEM_DB_USERNAME="ticketsystem"
-export TICKETSYSTEM_DB_PASSWORD="ticketsystem"
+export TICKETSYSTEM_DB_PASSWORD="change-me"
+./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+```
+
+Optional kann das Secure-Flag fuer Session-Cookies gesetzt werden:
+
+```bash
+export TICKETSYSTEM_COOKIE_SECURE="true"
+```
+
+Lokaler Demo-Start:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=demo
 ```
 
 ## Datenbank
 
-Das MySQL-Schema liegt hier:
+Die produktionsnahe Schema-Verwaltung laeuft ueber Flyway:
 
 ```text
-src/main/resources/db/mysql/schema.sql
+src/main/resources/db/migration/V1__initial_schema.sql
 ```
+
+Das alte MySQL-Schema-Skript liegt weiterhin als Referenz unter `src/main/resources/db/mysql/schema.sql`.
 
 Wichtige Tabellen:
 
@@ -306,7 +319,7 @@ Wichtige Endpunkte:
 
 | Methode | Pfad | Zweck |
 | --- | --- | --- |
-| `GET` | `/api/tickets` | Sichtbare Tickets holen |
+| `GET` | `/api/tickets?page=0&size=20` | Sichtbare Tickets paginiert holen |
 | `GET` | `/api/tickets/{id}` | Details zu einem Ticket holen |
 | `POST` | `/api/tickets` | Ticket erstellen |
 | `POST` | `/api/tickets/{id}/status` | Status aendern |
@@ -322,6 +335,21 @@ curl -u support:password \
   -d '{"title":"VPN funktioniert nicht","description":"Benutzer kann sich nicht verbinden"}' \
   http://localhost:8080/api/classification/preview
 ```
+
+API-Fehler werden in einem einheitlichen JSON-Format geliefert.
+Das gilt auch fuer API-Requests ohne Login oder ohne ausreichende Rolle.
+
+## Monitoring
+
+Spring Boot Actuator ist aktiviert.
+Oeffentlich erreichbar sind nur Health und Info:
+
+```text
+GET /actuator/health
+GET /actuator/info
+```
+
+Weitere Actuator-Endpunkte wie `/actuator/metrics` sind nur fuer Admins erreichbar.
 
 ## Tests
 
@@ -340,6 +368,8 @@ Die Tests pruefen unter anderem:
 - Admin-Regeln
 - REST API
 - API- und Web-Security
+- API-Fehlerformat
+- Actuator Health
 
 Wichtig: Die automatischen Tests nutzen das Profil `test` mit einer H2-In-Memory-Datenbank.
 Darum ist fuer `./mvnw test` kein lokaler MySQL-Server noetig.
@@ -358,9 +388,13 @@ docs/testprotokoll.md
 - Statusaenderungen werden in einer eigenen Historie gespeichert.
 - Support trifft die finale Entscheidung.
 - MySQL wird fuer die laufende Anwendung direkt genutzt.
+- Schema-Aenderungen werden ueber Flyway-Migrationen versioniert.
 - Automatische Tests laufen mit einer H2-In-Memory-Datenbank im Profil `test`.
+- Produktionszugangsdaten werden ueber Umgebungsvariablen gelesen.
 
 ## Moegliche Erweiterungen
 
-- Mehr Unit- und Integrationstests
+- Cluster-faehiges Rate Limiting fuer Login und API
+- Audit-Log-Tabelle fuer langfristige Nachvollziehbarkeit
+- Mehr End-to-End-Tests fuer die Weboberflaeche
 - Export oder Druckansicht fuer das Testprotokoll

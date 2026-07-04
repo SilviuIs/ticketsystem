@@ -4,6 +4,7 @@ import com.example.ticketsystem.models.ApiDtos.ClassificationPreviewRequest;
 import com.example.ticketsystem.models.ApiDtos.ClassificationPreviewResponse;
 import com.example.ticketsystem.models.ApiDtos.CreateTicketRequest;
 import com.example.ticketsystem.models.ApiDtos.FinalClassificationRequest;
+import com.example.ticketsystem.models.ApiDtos.PageResponse;
 import com.example.ticketsystem.models.ApiDtos.StatusHistoryResponse;
 import com.example.ticketsystem.models.ApiDtos.StatusUpdateRequest;
 import com.example.ticketsystem.models.ApiDtos.TicketDetailResponse;
@@ -18,12 +19,16 @@ import com.example.ticketsystem.services.TicketService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -48,10 +53,19 @@ public class ApiController {
 	}
 
 	@GetMapping("/tickets")
-	public List<TicketResponse> listTickets() {
-		return ticketService.findVisibleTickets().stream()
+	public PageResponse<TicketResponse> listTickets(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "20") int size
+	) {
+		Page<Ticket> ticketPage = ticketService.findVisibleTickets(PageRequest.of(
+				sanitizePage(page),
+				sanitizePageSize(size, 20),
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		));
+		List<TicketResponse> content = ticketPage.getContent().stream()
 				.map(TicketResponse::from)
 				.toList();
+		return PageResponse.from(ticketPage, content);
 	}
 
 	@GetMapping("/tickets/{id}")
@@ -92,5 +106,16 @@ public class ApiController {
 	@GetMapping("/dashboard")
 	public DashboardStatistics dashboard() {
 		return dashboardService.getStatistics();
+	}
+
+	private int sanitizePage(int page) {
+		return Math.max(page, 0);
+	}
+
+	private int sanitizePageSize(int size, int defaultSize) {
+		if (size < 1) {
+			return defaultSize;
+		}
+		return Math.min(size, 100);
 	}
 }

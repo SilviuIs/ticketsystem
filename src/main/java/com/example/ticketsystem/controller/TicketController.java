@@ -9,6 +9,9 @@ import com.example.ticketsystem.models.TicketStatus;
 import com.example.ticketsystem.repository.CategoryRepository;
 import com.example.ticketsystem.repository.PriorityRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -44,8 +47,18 @@ public class TicketController {
 	}
 
 	@GetMapping("/tickets")
-	public String list(Model model) {
-		model.addAttribute("tickets", ticketService.findVisibleTickets());
+	public String list(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "12") int size,
+			Model model
+	) {
+		Page<Ticket> ticketPage = ticketService.findVisibleTickets(PageRequest.of(
+				sanitizePage(page),
+				sanitizePageSize(size, 12),
+				Sort.by(Sort.Direction.DESC, "createdAt")
+		));
+		model.addAttribute("ticketPage", ticketPage);
+		model.addAttribute("tickets", ticketPage.getContent());
 		return "tickets/list";
 	}
 
@@ -142,5 +155,16 @@ public class TicketController {
 			form.setFinalPriorityId(ticket.getFinalPriority().getId());
 		}
 		return form;
+	}
+
+	private int sanitizePage(int page) {
+		return Math.max(page, 0);
+	}
+
+	private int sanitizePageSize(int size, int defaultSize) {
+		if (size < 1) {
+			return defaultSize;
+		}
+		return Math.min(size, 50);
 	}
 }

@@ -14,12 +14,18 @@ import com.example.ticketsystem.repository.PriorityRepository;
 import com.example.ticketsystem.repository.TicketRepository;
 import com.example.ticketsystem.repository.TicketStatusHistoryRepository;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TicketService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
 	private final TicketRepository ticketRepository;
 	private final TicketStatusHistoryRepository historyRepository;
@@ -51,6 +57,15 @@ public class TicketService {
 			return ticketRepository.findAll();
 		}
 		return ticketRepository.findByCreatedByUsername(authenticatedUserService.currentUsername());
+	}
+
+	@Transactional(readOnly = true)
+	public Page<Ticket> findVisibleTickets(Pageable pageable) {
+		// Support und Admin sehen alle Tickets. User sehen nur eigene Tickets.
+		if (authenticatedUserService.isSupportOrAdmin()) {
+			return ticketRepository.findAll(pageable);
+		}
+		return ticketRepository.findByCreatedByUsername(authenticatedUserService.currentUsername(), pageable);
 	}
 
 	@Transactional(readOnly = true)
@@ -94,6 +109,8 @@ public class TicketService {
 		Ticket saved = ticketRepository.save(ticket);
 		historyRepository.save(new TicketStatusHistory(saved, null, saved.getStatus(),
 				creator, "Ticket erstellt"));
+		LOGGER.info("ticket_created id={} createdBy={} status={} manualReviewRequired={}",
+				saved.getId(), creator.getUsername(), saved.getStatus(), saved.isManualReviewRequired());
 		return saved;
 	}
 
@@ -112,6 +129,8 @@ public class TicketService {
 		ticket.setStatus(newStatus);
 		ticket.setAssignedTo(supportUser);
 		historyRepository.save(new TicketStatusHistory(ticket, oldStatus, newStatus, supportUser, note));
+		LOGGER.info("ticket_status_changed id={} changedBy={} oldStatus={} newStatus={}",
+				ticket.getId(), supportUser.getUsername(), oldStatus, newStatus);
 	}
 
 	@Transactional
@@ -137,6 +156,8 @@ public class TicketService {
 		ticket.setStatus(newStatus);
 
 		historyRepository.save(new TicketStatusHistory(ticket, oldStatus, newStatus, supportUser, buildFinalClassificationNote(category, priority, form.getNote())));
+		LOGGER.info("ticket_final_classification_updated id={} changedBy={} category={} priority={}",
+				ticket.getId(), supportUser.getUsername(), category.getName(), priority.getName());
 	}
 
 	@Transactional(readOnly = true)

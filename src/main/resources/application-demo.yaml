@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: ${TICKETSYSTEM_DB_URL:jdbc:mysql://localhost:3306/ticketsystem?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Berlin}
+    username: ${TICKETSYSTEM_DB_USERNAME:ticketsystem}
+    password: ${TICKETSYSTEM_DB_PASSWORD:ticketsystem}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false

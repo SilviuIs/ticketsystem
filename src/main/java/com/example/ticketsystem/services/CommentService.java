@@ -8,12 +8,16 @@ import com.example.ticketsystem.models.TicketStatusHistory;
 import com.example.ticketsystem.repository.CommentRepository;
 import com.example.ticketsystem.repository.TicketStatusHistoryRepository;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CommentService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(CommentService.class);
 
 	private final CommentRepository commentRepository;
 	private final TicketStatusHistoryRepository historyRepository;
@@ -48,6 +52,7 @@ public class CommentService {
 		Ticket ticket = ticketService.findById(ticketId);
 		AppUser author = authenticatedUserService.currentUser();
 		commentRepository.save(new Comment(ticket, author, content.trim()));
+		LOGGER.info("ticket_comment_added ticketId={} author={}", ticket.getId(), author.getUsername());
 	}
 
 	@Transactional
@@ -71,6 +76,7 @@ public class CommentService {
 		historyRepository.save(
 				new TicketStatusHistory(ticket, oldStatus, TicketStatus.WAITING_FOR_USER, author, "Rückfrage an Benutzer gestellt")
 		);
+		LOGGER.info("ticket_clarification_requested ticketId={} requestedBy={}", ticket.getId(), author.getUsername());
 	}
 
 	@Transactional
@@ -96,5 +102,6 @@ public class CommentService {
 		historyRepository.save(
 				new TicketStatusHistory(ticket, TicketStatus.WAITING_FOR_USER, TicketStatus.IN_PROGRESS, author, "Antwort des Benutzers erhalten")
 		);
+		LOGGER.info("ticket_clarification_answered ticketId={} answeredBy={}", ticket.getId(), author.getUsername());
 	}
 }
