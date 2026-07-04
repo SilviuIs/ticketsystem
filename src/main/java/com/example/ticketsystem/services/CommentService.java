@@ -23,17 +23,20 @@ public class CommentService {
 	private final TicketStatusHistoryRepository historyRepository;
 	private final TicketService ticketService;
 	private final AuthenticatedUserService authenticatedUserService;
+	private final AuditService auditService;
 
 	public CommentService(
 			CommentRepository commentRepository,
 			TicketStatusHistoryRepository historyRepository,
 			TicketService ticketService,
-			AuthenticatedUserService authenticatedUserService
+			AuthenticatedUserService authenticatedUserService,
+			AuditService auditService
 	) {
 		this.commentRepository = commentRepository;
 		this.historyRepository = historyRepository;
 		this.ticketService = ticketService;
 		this.authenticatedUserService = authenticatedUserService;
+		this.auditService = auditService;
 	}
 
 	@Transactional(readOnly = true)
@@ -53,6 +56,7 @@ public class CommentService {
 		AppUser author = authenticatedUserService.currentUser();
 		commentRepository.save(new Comment(ticket, author, content.trim()));
 		LOGGER.info("ticket_comment_added ticketId={} author={}", ticket.getId(), author.getUsername());
+		auditService.record("TICKET_COMMENT_ADDED", author.getUsername(), "Ticket", ticket.getId(), "Support comment added");
 	}
 
 	@Transactional
@@ -77,6 +81,7 @@ public class CommentService {
 				new TicketStatusHistory(ticket, oldStatus, TicketStatus.WAITING_FOR_USER, author, "Rückfrage an Benutzer gestellt")
 		);
 		LOGGER.info("ticket_clarification_requested ticketId={} requestedBy={}", ticket.getId(), author.getUsername());
+		auditService.record("TICKET_CLARIFICATION_REQUESTED", author.getUsername(), "Ticket", ticket.getId(), "Clarification requested");
 	}
 
 	@Transactional
@@ -103,5 +108,6 @@ public class CommentService {
 				new TicketStatusHistory(ticket, TicketStatus.WAITING_FOR_USER, TicketStatus.IN_PROGRESS, author, "Antwort des Benutzers erhalten")
 		);
 		LOGGER.info("ticket_clarification_answered ticketId={} answeredBy={}", ticket.getId(), author.getUsername());
+		auditService.record("TICKET_CLARIFICATION_ANSWERED", author.getUsername(), "Ticket", ticket.getId(), "Clarification answered");
 	}
 }

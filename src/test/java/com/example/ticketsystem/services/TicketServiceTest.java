@@ -48,6 +48,9 @@ class TicketServiceTest {
 	@Mock
 	private PriorityRepository priorityRepository;
 
+	@Mock
+	private AuditService auditService;
+
 	@InjectMocks
 	private TicketService ticketService;
 
@@ -120,6 +123,13 @@ class TicketServiceTest {
 		assertThat(ticket.getStatus()).isEqualTo(TicketStatus.OPEN);
 		assertThat(ticket.isManualReviewRequired()).isFalse();
 		verify(historyRepository).save(any(TicketStatusHistory.class));
+		verify(auditService).record(
+				"TICKET_CREATED",
+				"user",
+				"Ticket",
+				ticket.getId(),
+				"Ticket created with status OPEN"
+		);
 	}
 
 	@Test
@@ -140,5 +150,12 @@ class TicketServiceTest {
 		assertThat(ticket.getStatus()).isEqualTo(TicketStatus.MANUAL_REVIEW_REQUIRED);
 		assertThat(ticket.isManualReviewRequired()).isTrue();
 		verify(historyRepository).save(any(TicketStatusHistory.class));
+		verify(auditService).record(
+				"TICKET_CREATED",
+				"user",
+				"Ticket",
+				ticket.getId(),
+				"Ticket created with status MANUAL_REVIEW_REQUIRED"
+		);
 	}
 }

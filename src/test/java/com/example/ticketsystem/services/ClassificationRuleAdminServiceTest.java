@@ -3,6 +3,7 @@ package com.example.ticketsystem.services;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.example.ticketsystem.models.Category;
@@ -30,6 +31,9 @@ class ClassificationRuleAdminServiceTest {
 
 	@Mock
 	private PriorityRepository priorityRepository;
+
+	@Mock
+	private AuditService auditService;
 
 	@InjectMocks
 	private ClassificationRuleAdminService ruleAdminService;
@@ -59,6 +63,13 @@ class ClassificationRuleAdminServiceTest {
 		assertThat(rule.getTerms())
 				.extracting(term -> term.getTerm() + ":" + term.getWeight())
 				.containsExactly("vpn:5", "wlan:4", "internet:3");
+		verify(auditService).record(
+				"CLASSIFICATION_RULE_CREATED",
+				null,
+				"ClassificationRule",
+				rule.getId(),
+				"Classification rule created: Netzwerk VPN"
+		);
 	}
 
 	@Test

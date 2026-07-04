@@ -33,6 +33,7 @@ public class TicketService {
 	private final AuthenticatedUserService authenticatedUserService;
 	private final CategoryRepository categoryRepository;
 	private final PriorityRepository priorityRepository;
+	private final AuditService auditService;
 
 	public TicketService(
 			TicketRepository ticketRepository,
@@ -40,7 +41,8 @@ public class TicketService {
 			ClassificationService classificationService,
 			AuthenticatedUserService authenticatedUserService,
 			CategoryRepository categoryRepository,
-			PriorityRepository priorityRepository
+			PriorityRepository priorityRepository,
+			AuditService auditService
 	) {
 		this.ticketRepository = ticketRepository;
 		this.historyRepository = historyRepository;
@@ -48,6 +50,7 @@ public class TicketService {
 		this.authenticatedUserService = authenticatedUserService;
 		this.categoryRepository = categoryRepository;
 		this.priorityRepository = priorityRepository;
+		this.auditService = auditService;
 	}
 
 	@Transactional(readOnly = true)
@@ -111,6 +114,13 @@ public class TicketService {
 				creator, "Ticket erstellt"));
 		LOGGER.info("ticket_created id={} createdBy={} status={} manualReviewRequired={}",
 				saved.getId(), creator.getUsername(), saved.getStatus(), saved.isManualReviewRequired());
+		auditService.record(
+				"TICKET_CREATED",
+				creator.getUsername(),
+				"Ticket",
+				saved.getId(),
+				"Ticket created with status " + saved.getStatus()
+		);
 		return saved;
 	}
 
@@ -131,6 +141,13 @@ public class TicketService {
 		historyRepository.save(new TicketStatusHistory(ticket, oldStatus, newStatus, supportUser, note));
 		LOGGER.info("ticket_status_changed id={} changedBy={} oldStatus={} newStatus={}",
 				ticket.getId(), supportUser.getUsername(), oldStatus, newStatus);
+		auditService.record(
+				"TICKET_STATUS_CHANGED",
+				supportUser.getUsername(),
+				"Ticket",
+				ticket.getId(),
+				"Status changed from " + oldStatus + " to " + newStatus
+		);
 	}
 
 	@Transactional
@@ -158,6 +175,13 @@ public class TicketService {
 		historyRepository.save(new TicketStatusHistory(ticket, oldStatus, newStatus, supportUser, buildFinalClassificationNote(category, priority, form.getNote())));
 		LOGGER.info("ticket_final_classification_updated id={} changedBy={} category={} priority={}",
 				ticket.getId(), supportUser.getUsername(), category.getName(), priority.getName());
+		auditService.record(
+				"TICKET_FINAL_CLASSIFICATION_UPDATED",
+				supportUser.getUsername(),
+				"Ticket",
+				ticket.getId(),
+				"Final classification set to " + category.getName() + " / " + priority.getName()
+		);
 	}
 
 	@Transactional(readOnly = true)

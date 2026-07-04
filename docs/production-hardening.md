@@ -10,6 +10,7 @@
 - Ticketlisten sind fuer Web und API paginiert.
 - Actuator ist aktiv. Health und Info sind oeffentlich, Metrics ist geschuetzt.
 - Support- und Admin-Aktionen werden service-seitig geloggt, ohne Kommentartexte oder Secrets zu loggen.
+- Wichtige Domain-Aktionen werden zusaetzlich in `audit_events` gespeichert.
 
 ## Production-Start
 
@@ -29,7 +30,6 @@ curl http://localhost:8080/actuator/health
 
 ## Bewusste Grenzen
 
-- Das service-level Logging ersetzt noch kein dauerhaftes Audit-Log in der Datenbank.
 - Rate Limiting ist noch nicht umgesetzt. Fuer echte Produktion sollte eine cluster-faehige Loesung am Gateway oder mit gemeinsamem Backend genutzt werden.
 - Die Demo-Zugaenge sind nur fuer lokale Demo-Umgebungen gedacht.
 - Backup/Restore, externe Secret Stores und Deployment-Konfiguration sind nicht Teil dieses Projekts.

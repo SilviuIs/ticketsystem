@@ -79,6 +79,7 @@ Start mit Demo-Daten:
 | `tickets` | Tickets mit Status und Klassifikation |
 | `comments` | Kommentare zu Tickets |
 | `ticket_status_history` | Historie der Statusaenderungen |
+| `audit_events` | Persistente Audit-Ereignisse fuer wichtige Domain-Aktionen |
 | `categories` | Ticketkategorien |
 | `priorities` | Prioritaeten |
 | `classification_rules` | Regeln fuer automatische Klassifikation |
@@ -91,6 +92,9 @@ Darum kann Admin Regeln aendern, ohne Java-Code zu aendern.
 
 Tickets, Kommentare und Statushistorie sind getrennt.
 So kann man sehen, was passiert ist und wer etwas geaendert hat.
+
+Zusaetzlich speichert `audit_events` wichtige Support- und Admin-Aktionen.
+Dort stehen keine Kommentartexte oder Ticketbeschreibungen, sondern Ereignistyp, Akteur, Entitaet, ID und eine kurze Zusammenfassung.
 
 Flyway versioniert Schema-Aenderungen.
 Demo-Daten werden nicht in Flyway-Migrationen gespeichert, sondern nur durch das Profil `demo` erzeugt.

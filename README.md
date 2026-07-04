@@ -292,6 +292,7 @@ Wichtige Tabellen:
 - `tickets`
 - `comments`
 - `ticket_status_history`
+- `audit_events`
 - `categories`
 - `priorities`
 - `classification_rules`
@@ -391,6 +392,7 @@ docs/testprotokoll.md
 - Schema-Aenderungen werden ueber Flyway-Migrationen versioniert.
 - Automatische Tests laufen mit einer H2-In-Memory-Datenbank im Profil `test`.
 - Produktionszugangsdaten werden ueber Umgebungsvariablen gelesen.
+- Wichtige Domain-Aktionen werden in `audit_events` nachvollziehbar gespeichert.
 
 ## Moegliche Erweiterungen
 

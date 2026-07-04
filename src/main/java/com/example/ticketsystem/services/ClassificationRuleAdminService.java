@@ -23,15 +23,18 @@ public class ClassificationRuleAdminService {
 	private final ClassificationRuleRepository ruleRepository;
 	private final CategoryRepository categoryRepository;
 	private final PriorityRepository priorityRepository;
+	private final AuditService auditService;
 
 	public ClassificationRuleAdminService(
 			ClassificationRuleRepository ruleRepository,
 			CategoryRepository categoryRepository,
-			PriorityRepository priorityRepository
+			PriorityRepository priorityRepository,
+			AuditService auditService
 	) {
 		this.ruleRepository = ruleRepository;
 		this.categoryRepository = categoryRepository;
 		this.priorityRepository = priorityRepository;
+		this.auditService = auditService;
 	}
 
 	@Transactional(readOnly = true)
@@ -68,6 +71,13 @@ public class ClassificationRuleAdminService {
 		rule.replaceTerms(parseTerms(rule, form.getTermsText()));
 		ClassificationRule saved = ruleRepository.save(rule);
 		LOGGER.info("classification_rule_created id={} name={} active={}", saved.getId(), saved.getName(), saved.isActive());
+		auditService.record(
+				"CLASSIFICATION_RULE_CREATED",
+				null,
+				"ClassificationRule",
+				saved.getId(),
+				"Classification rule created: " + saved.getName()
+		);
 		return saved;
 	}
 
@@ -85,6 +95,13 @@ public class ClassificationRuleAdminService {
 		ruleRepository.flush();
 		rule.replaceTerms(parsedTerms);
 		LOGGER.info("classification_rule_updated id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
+		auditService.record(
+				"CLASSIFICATION_RULE_UPDATED",
+				null,
+				"ClassificationRule",
+				rule.getId(),
+				"Classification rule updated: " + rule.getName()
+		);
 	}
 
 	@Transactional
@@ -92,6 +109,13 @@ public class ClassificationRuleAdminService {
 		ClassificationRule rule = findRule(id);
 		rule.setActive(!rule.isActive());
 		LOGGER.info("classification_rule_toggled id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
+		auditService.record(
+				"CLASSIFICATION_RULE_TOGGLED",
+				null,
+				"ClassificationRule",
+				rule.getId(),
+				"Classification rule active=" + rule.isActive() + ": " + rule.getName()
+		);
 	}
 
 	private Category findCategory(Long id) {
