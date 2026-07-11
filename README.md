@@ -44,6 +44,7 @@ Support kann diesen Vorschlag pruefen und final speichern.
 - Spring Boot Actuator
 - Maven
 - Einfaches In-Memory-Rate-Limiting fuer Login und REST API
+- Optionaler E-Mail-Import, der ungelesene IMAP-Nachrichten als Tickets anlegt
 
 ## Schnellstart fuer Bewertung
 
@@ -352,6 +353,36 @@ ticket-system.rate-limit.login.requests-per-minute: 10
 
 Das schuetzt die Demo-Anwendung gegen einfache Brute-Force- und Flooding-Versuche. Fuer mehrere produktive Instanzen braucht man ein cluster-faehiges Limit am Gateway oder mit gemeinsamem Backend.
 
+## E-Mail Import
+
+Die Anwendung kann ungelesene E-Mails aus einem IMAP-Postfach lesen und daraus Tickets erstellen.
+Der Import ist standardmaessig deaktiviert und wird nur ueber Konfiguration aktiviert.
+Nach erfolgreicher Ticket-Erstellung wird die E-Mail als gelesen markiert.
+
+Konfiguration:
+
+```bash
+export TICKETSYSTEM_INBOUND_MAIL_ENABLED="true"
+export TICKETSYSTEM_INBOUND_MAIL_HOST="imap.example.com"
+export TICKETSYSTEM_INBOUND_MAIL_PORT="993"
+export TICKETSYSTEM_INBOUND_MAIL_USERNAME="support@example.com"
+export TICKETSYSTEM_INBOUND_MAIL_PASSWORD="change-me"
+export TICKETSYSTEM_INBOUND_MAIL_FOLDER="INBOX"
+export TICKETSYSTEM_INBOUND_MAIL_POLL_DELAY_MS="60000"
+export TICKETSYSTEM_INBOUND_MAIL_CREATED_BY="mailbot"
+```
+
+Start:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.arguments=--ticket-system.inbound-mail.enabled=true
+```
+
+Im Demo-Profil wird der technische Benutzer `mailbot` automatisch angelegt.
+In Produktion muss der konfigurierte Benutzer bereits existieren.
+
+Aktuelle Grenzen: Attachments werden nicht importiert, Antworten auf bestehende Tickets werden noch nicht automatisch zugeordnet, und Duplikaterkennung basiert aktuell darauf, dass verarbeitete E-Mails als gelesen markiert werden.
+
 ## Monitoring
 
 Spring Boot Actuator ist aktiviert.
@@ -384,6 +415,7 @@ Die Tests pruefen unter anderem:
 - API-Fehlerformat
 - Actuator Health
 - Rate Limiting fuer Login und REST API
+- E-Mail-Parsing und Ticket-Erstellung aus eingehenden E-Mails
 
 Wichtig: Die automatischen Tests nutzen das Profil `test` mit einer H2-In-Memory-Datenbank.
 Darum ist fuer `./mvnw test` kein lokaler MySQL-Server noetig.
@@ -407,9 +439,11 @@ docs/testprotokoll.md
 - Produktionszugangsdaten werden ueber Umgebungsvariablen gelesen.
 - Wichtige Domain-Aktionen werden in `audit_events` nachvollziehbar gespeichert.
 - Rate Limiting ist bewusst in-memory gehalten und fuer mehrere Instanzen an Gateway oder Shared Backend auszulagern.
+- Der E-Mail-Import ist optional, deaktiviert per Default und erstellt Tickets ueber denselben Service wie Web und API.
 
 ## Moegliche Erweiterungen
 
 - Audit-Log-Tabelle fuer langfristige Nachvollziehbarkeit
 - Mehr End-to-End-Tests fuer die Weboberflaeche
 - Export oder Druckansicht fuer das Testprotokoll
+- Zuordnung von E-Mail-Antworten zu bestehenden Tickets

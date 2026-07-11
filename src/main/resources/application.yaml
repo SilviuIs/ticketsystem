@@ -43,3 +43,13 @@ ticket-system:
       requests-per-minute: 120
     login:
       requests-per-minute: 10
+  inbound-mail:
+    enabled: false
+    protocol: imaps
+    host: ${TICKETSYSTEM_INBOUND_MAIL_HOST:localhost}
+    port: ${TICKETSYSTEM_INBOUND_MAIL_PORT:993}
+    username: ${TICKETSYSTEM_INBOUND_MAIL_USERNAME:}
+    password: ${TICKETSYSTEM_INBOUND_MAIL_PASSWORD:}
+    folder: ${TICKETSYSTEM_INBOUND_MAIL_FOLDER:INBOX}
+    poll-delay-ms: ${TICKETSYSTEM_INBOUND_MAIL_POLL_DELAY_MS:60000}
+    created-by-username: ${TICKETSYSTEM_INBOUND_MAIL_CREATED_BY:mailbot}

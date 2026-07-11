@@ -63,6 +63,7 @@ public class DemoDataInitializer implements CommandLineRunner {
 		AppUser user = findOrCreateUser("user", "user@example.local", "Max", "Mustermann", List.of(userRole));
 		findOrCreateUser("support", "support@example.local", "Erika", "Support", List.of(supportRole));
 		findOrCreateUser("admin", "admin@example.local", "Ada", "Admin", List.of(adminRole, supportRole));
+		findOrCreateUser("mailbot", "mailbot@example.local", "Mail", "Import", List.of(userRole));
 
 		Category hardware = findOrCreateCategory("Hardware", "Drucker, Notebook, Bildschirm und Peripherie");
 		Category account = findOrCreateCategory("Account", "Passwort, Login und Benutzerzugriff");
