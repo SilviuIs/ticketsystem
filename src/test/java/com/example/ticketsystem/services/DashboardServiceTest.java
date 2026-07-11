@@ -1,7 +1,6 @@
 package com.example.ticketsystem.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.when;
 
 import com.example.ticketsystem.models.DashboardStatistics;
@@ -27,13 +26,14 @@ class DashboardServiceTest {
 	@Test
 	void getStatisticsBuildsOperationalDashboardValues() {
 		when(ticketRepository.count()).thenReturn(10L);
-		when(ticketRepository.countByStatus(TicketStatus.OPEN)).thenReturn(3L);
-		when(ticketRepository.countByStatus(TicketStatus.IN_PROGRESS)).thenReturn(2L);
-		when(ticketRepository.countByStatus(TicketStatus.WAITING_FOR_USER)).thenReturn(1L);
-		when(ticketRepository.countByStatus(TicketStatus.RESOLVED)).thenReturn(2L);
-		when(ticketRepository.countByStatus(TicketStatus.CLOSED)).thenReturn(1L);
-		when(ticketRepository.countByStatus(TicketStatus.MANUAL_REVIEW_REQUIRED)).thenReturn(1L);
-		when(ticketRepository.countByStatusIn(anyCollection())).thenReturn(7L, 3L);
+		when(ticketRepository.countByStatusGroup()).thenReturn(List.of(
+				statusCount(TicketStatus.OPEN, 3L),
+				statusCount(TicketStatus.IN_PROGRESS, 2L),
+				statusCount(TicketStatus.WAITING_FOR_USER, 1L),
+				statusCount(TicketStatus.RESOLVED, 2L),
+				statusCount(TicketStatus.CLOSED, 1L),
+				statusCount(TicketStatus.MANUAL_REVIEW_REQUIRED, 1L)
+		));
 		when(ticketRepository.countByManualReviewRequiredTrue()).thenReturn(1L);
 		when(ticketRepository.countByAssignedToIsNull()).thenReturn(4L);
 		when(ticketRepository.countByFinalCategory()).thenReturn(List.of(new StatisticItem("Hardware", 6L)));
@@ -53,5 +53,19 @@ class DashboardServiceTest {
 				new StatisticItem("Level 1", 2, 20),
 				new StatisticItem("Level 2", 8, 80)
 		);
+	}
+
+	private TicketRepository.StatusCount statusCount(TicketStatus status, long count) {
+		return new TicketRepository.StatusCount() {
+			@Override
+			public TicketStatus getStatus() {
+				return status;
+			}
+
+			@Override
+			public long getCount() {
+				return count;
+			}
+		};
 	}
 }

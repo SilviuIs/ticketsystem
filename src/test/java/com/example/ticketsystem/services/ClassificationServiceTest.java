@@ -87,4 +87,43 @@ class ClassificationServiceTest {
 		assertThat(result.confidenceLevel()).isEqualByComparingTo(BigDecimal.ZERO);
 		assertThat(result.manualReviewRequired()).isTrue();
 	}
+
+	@Test
+	void classifyDoesNotMatchTermInsideAnotherWord() {
+		Category network = new Category("Netzwerk", "Verbindungsprobleme");
+		Priority level1 = new Priority("Level 1", 1, "Kritischer Vorfall");
+		ClassificationRule networkRule = new ClassificationRule("Netzwerk VPN", network, level1, 5);
+		networkRule.addTerm("vpn", 5);
+
+		when(ruleRepository.findByActiveTrue()).thenReturn(List.of(networkRule));
+
+		ClassificationResult result = classificationService.classify(
+				"OpenVPN Client",
+				"Der Client startet nicht."
+		);
+
+		assertThat(result.category()).isNull();
+		assertThat(result.score()).isZero();
+		assertThat(result.manualReviewRequired()).isTrue();
+	}
+
+	@Test
+	void classifyMatchesMultiWordTermsWithWordBoundaries() {
+		Category account = new Category("Account", "Loginprobleme");
+		Priority level1 = new Priority("Level 1", 1, "Kritischer Vorfall");
+		ClassificationRule accountRule = new ClassificationRule("Account Passwort", account, level1, 6);
+		accountRule.addTerm("passwort vergessen", 6);
+
+		when(ruleRepository.findByActiveTrue()).thenReturn(List.of(accountRule));
+
+		ClassificationResult result = classificationService.classify(
+				"Passwort vergessen",
+				"Ich kann mich nicht mehr anmelden."
+		);
+
+		assertThat(result.category()).isEqualTo(account);
+		assertThat(result.priority()).isEqualTo(level1);
+		assertThat(result.score()).isEqualTo(6);
+		assertThat(result.manualReviewRequired()).isFalse();
+	}
 }

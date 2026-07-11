@@ -36,6 +36,13 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 	long countByAssignedToIsNull();
 
 	@Query("""
+			select ticket.status as status, count(ticket) as count
+			from Ticket ticket
+			group by ticket.status
+			""")
+	List<StatusCount> countByStatusGroup();
+
+	@Query("""
 			select new com.example.ticketsystem.models.StatisticItem(coalesce(category.name, 'Keine Kategorie'), count(ticket))
 			from Ticket ticket
 			left join ticket.finalCategory category
@@ -52,4 +59,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 			order by priority.level asc
 			""")
 	List<StatisticItem> countByFinalPriority();
+
+	interface StatusCount {
+
+		TicketStatus getStatus();
+
+		long getCount();
+	}
 }

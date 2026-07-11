@@ -35,6 +35,9 @@ class ClassificationRuleAdminServiceTest {
 	@Mock
 	private AuditService auditService;
 
+	@Mock
+	private AuthenticatedUserService authenticatedUserService;
+
 	@InjectMocks
 	private ClassificationRuleAdminService ruleAdminService;
 
@@ -53,6 +56,7 @@ class ClassificationRuleAdminServiceTest {
 		when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 		when(priorityRepository.findById(2L)).thenReturn(Optional.of(priority));
 		when(ruleRepository.save(any(ClassificationRule.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(authenticatedUserService.currentUsername()).thenReturn("admin");
 
 		ClassificationRule rule = ruleAdminService.createRule(form);
 
@@ -65,7 +69,7 @@ class ClassificationRuleAdminServiceTest {
 				.containsExactly("vpn:5", "wlan:4", "internet:3");
 		verify(auditService).record(
 				"CLASSIFICATION_RULE_CREATED",
-				null,
+				"admin",
 				"ClassificationRule",
 				rule.getId(),
 				"Classification rule created: Netzwerk VPN"
@@ -90,5 +94,25 @@ class ClassificationRuleAdminServiceTest {
 		assertThatThrownBy(() -> ruleAdminService.createRule(form))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessageContaining("ganze Zahlen");
+	}
+
+	@Test
+	void createRuleRejectsDuplicateTermsBeforeDatabaseConstraint() {
+		Category category = new Category("Netzwerk", "Verbindungen");
+		Priority priority = new Priority("Level 1", 1, "Kritisch");
+		ClassificationRuleForm form = new ClassificationRuleForm();
+		form.setName("Netzwerk VPN");
+		form.setCategoryId(1L);
+		form.setPriorityId(2L);
+		form.setThreshold(7);
+		form.setActive(true);
+		form.setTermsText("vpn:5\nVPN:3");
+
+		when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+		when(priorityRepository.findById(2L)).thenReturn(Optional.of(priority));
+
+		assertThatThrownBy(() -> ruleAdminService.createRule(form))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("Begriff doppelt angegeben: vpn");
 	}
 }

@@ -5,7 +5,9 @@ import com.example.ticketsystem.models.StatisticItem;
 import com.example.ticketsystem.models.TicketStatus;
 import com.example.ticketsystem.repository.TicketRepository;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,25 +32,40 @@ public class DashboardService {
 	@Transactional(readOnly = true)
 	public DashboardStatistics getStatistics() {
 		long totalTickets = ticketRepository.count();
-		long waitingForUserTickets = ticketRepository.countByStatus(TicketStatus.WAITING_FOR_USER);
+		Map<TicketStatus, Long> statusCounts = loadStatusCounts();
+		long waitingForUserTickets = statusCounts.getOrDefault(TicketStatus.WAITING_FOR_USER, 0L);
 
 		return new DashboardStatistics(
 				totalTickets,
-				ticketRepository.countByStatusIn(ACTIVE_STATUSES),
+				sumStatusCounts(statusCounts, ACTIVE_STATUSES),
 				waitingForUserTickets,
 				ticketRepository.countByManualReviewRequiredTrue(),
-				ticketRepository.countByStatusIn(COMPLETED_STATUSES),
+				sumStatusCounts(statusCounts, COMPLETED_STATUSES),
 				ticketRepository.countByAssignedToIsNull(),
-				buildStatusCounts(totalTickets),
+				buildStatusCounts(statusCounts, totalTickets),
 				withPercentages(ticketRepository.countByFinalCategory(), totalTickets),
 				withPercentages(ticketRepository.countByFinalPriority(), totalTickets)
 		);
 	}
 
-	private List<StatisticItem> buildStatusCounts(long totalTickets) {
+	private Map<TicketStatus, Long> loadStatusCounts() {
+		Map<TicketStatus, Long> statusCounts = new EnumMap<>(TicketStatus.class);
+		for (TicketRepository.StatusCount statusCount : ticketRepository.countByStatusGroup()) {
+			statusCounts.put(statusCount.getStatus(), statusCount.getCount());
+		}
+		return statusCounts;
+	}
+
+	private long sumStatusCounts(Map<TicketStatus, Long> statusCounts, Collection<TicketStatus> statuses) {
+		return statuses.stream()
+				.mapToLong(status -> statusCounts.getOrDefault(status, 0L))
+				.sum();
+	}
+
+	private List<StatisticItem> buildStatusCounts(Map<TicketStatus, Long> statusCounts, long totalTickets) {
 		// Auch Status ohne Tickets sollen im Dashboard sichtbar sein.
 		return Stream.of(TicketStatus.values())
-				.map(status -> new StatisticItem(statusLabel(status), ticketRepository.countByStatus(status)).withPercentage(totalTickets))
+				.map(status -> new StatisticItem(statusLabel(status), statusCounts.getOrDefault(status, 0L)).withPercentage(totalTickets))
 				.toList();
 	}
 

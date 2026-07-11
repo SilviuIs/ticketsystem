@@ -9,7 +9,10 @@ import com.example.ticketsystem.repository.CategoryRepository;
 import com.example.ticketsystem.repository.ClassificationRuleRepository;
 import com.example.ticketsystem.repository.PriorityRepository;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,17 +27,20 @@ public class ClassificationRuleAdminService {
 	private final CategoryRepository categoryRepository;
 	private final PriorityRepository priorityRepository;
 	private final AuditService auditService;
+	private final AuthenticatedUserService authenticatedUserService;
 
 	public ClassificationRuleAdminService(
 			ClassificationRuleRepository ruleRepository,
 			CategoryRepository categoryRepository,
 			PriorityRepository priorityRepository,
-			AuditService auditService
+			AuditService auditService,
+			AuthenticatedUserService authenticatedUserService
 	) {
 		this.ruleRepository = ruleRepository;
 		this.categoryRepository = categoryRepository;
 		this.priorityRepository = priorityRepository;
 		this.auditService = auditService;
+		this.authenticatedUserService = authenticatedUserService;
 	}
 
 	@Transactional(readOnly = true)
@@ -73,7 +79,7 @@ public class ClassificationRuleAdminService {
 		LOGGER.info("classification_rule_created id={} name={} active={}", saved.getId(), saved.getName(), saved.isActive());
 		auditService.record(
 				"CLASSIFICATION_RULE_CREATED",
-				null,
+				authenticatedUserService.currentUsername(),
 				"ClassificationRule",
 				saved.getId(),
 				"Classification rule created: " + saved.getName()
@@ -97,7 +103,7 @@ public class ClassificationRuleAdminService {
 		LOGGER.info("classification_rule_updated id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
 		auditService.record(
 				"CLASSIFICATION_RULE_UPDATED",
-				null,
+				authenticatedUserService.currentUsername(),
 				"ClassificationRule",
 				rule.getId(),
 				"Classification rule updated: " + rule.getName()
@@ -111,7 +117,7 @@ public class ClassificationRuleAdminService {
 		LOGGER.info("classification_rule_toggled id={} name={} active={}", rule.getId(), rule.getName(), rule.isActive());
 		auditService.record(
 				"CLASSIFICATION_RULE_TOGGLED",
-				null,
+				authenticatedUserService.currentUsername(),
 				"ClassificationRule",
 				rule.getId(),
 				"Classification rule active=" + rule.isActive() + ": " + rule.getName()
@@ -137,10 +143,20 @@ public class ClassificationRuleAdminService {
 				.map(entry -> parseTerm(rule, entry))
 				.toList();
 
+		validateUniqueTerms(terms);
 		if (terms.isEmpty()) {
 			throw new IllegalArgumentException("Mindestens ein Begriff mit Gewichtung ist erforderlich.");
 		}
 		return terms;
+	}
+
+	private void validateUniqueTerms(List<ClassificationTerm> terms) {
+		Set<String> seenTerms = new HashSet<>();
+		for (ClassificationTerm term : terms) {
+			if (!seenTerms.add(term.getTerm())) {
+				throw new IllegalArgumentException("Begriff doppelt angegeben: " + term.getTerm());
+			}
+		}
 	}
 
 	private ClassificationTerm parseTerm(ClassificationRule rule, String entry) {
@@ -154,7 +170,7 @@ public class ClassificationRuleAdminService {
 			if (weight <= 0) {
 				throw new IllegalArgumentException("Gewichtungen muessen groesser als 0 sein.");
 			}
-			return new ClassificationTerm(rule, parts[0].trim().toLowerCase(), weight);
+			return new ClassificationTerm(rule, parts[0].trim().toLowerCase(Locale.GERMAN), weight);
 		}
 		catch (NumberFormatException exception) {
 			throw new IllegalArgumentException("Gewichtungen muessen ganze Zahlen sein.");

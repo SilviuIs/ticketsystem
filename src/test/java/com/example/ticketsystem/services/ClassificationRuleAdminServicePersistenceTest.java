@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ class ClassificationRuleAdminServicePersistenceTest {
 	private EntityManager entityManager;
 
 	@Test
+	@WithMockUser(username = "admin", roles = "ADMIN")
 	void updateRuleCanChangeWeightOfExistingToken() {
 		String suffix = UUID.randomUUID().toString();
 		int testPriorityLevel = priorityRepository.findAll().stream()

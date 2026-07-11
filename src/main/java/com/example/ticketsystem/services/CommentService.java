@@ -41,6 +41,7 @@ public class CommentService {
 
 	@Transactional(readOnly = true)
 	public List<Comment> findByTicket(Long ticketId) {
+		ticketService.findById(ticketId);
 		return commentRepository.findByTicketIdOrderByCreatedAtAsc(ticketId);
 	}
 

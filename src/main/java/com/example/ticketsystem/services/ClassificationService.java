@@ -62,7 +62,7 @@ public class ClassificationService {
 				continue;
 			}
 			String normalizedTerm = normalize(term.getTerm());
-			if (normalizedText.contains(normalizedTerm)) {
+			if (containsNormalizedTerm(normalizedText, normalizedTerm)) {
 				score += term.getWeight();
 				matchedTerms.add(term.getTerm() + " (+" + term.getWeight() + ")");
 			}
@@ -78,6 +78,13 @@ public class ClassificationService {
 				.toLowerCase(Locale.GERMAN)
 				.replaceAll("[^a-z0-9äöüß]+", " ")
 				.trim();
+	}
+
+	private boolean containsNormalizedTerm(String normalizedText, String normalizedTerm) {
+		if (normalizedTerm.isBlank()) {
+			return false;
+		}
+		return (" " + normalizedText + " ").contains(" " + normalizedTerm + " ");
 	}
 
 	private record RuleScore(ClassificationRule rule, int score, List<String> matchedTerms) {
