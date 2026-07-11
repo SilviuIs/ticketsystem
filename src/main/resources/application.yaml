@@ -37,3 +37,10 @@ management:
   info:
     env:
       enabled: false
+
+ticket-system:
+  rate-limit:
+    api:
+      requests-per-minute: 120
+    login:
+      requests-per-minute: 10

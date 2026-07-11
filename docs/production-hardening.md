@@ -11,6 +11,7 @@
 - Actuator ist aktiv. Health und Info sind oeffentlich, Metrics ist geschuetzt.
 - Support- und Admin-Aktionen werden service-seitig geloggt, ohne Kommentartexte oder Secrets zu loggen.
 - Wichtige Domain-Aktionen werden zusaetzlich in `audit_events` gespeichert.
+- Login und API werden mit einem einfachen In-Memory-Rate-Limit gegen Brute-Force- und Flooding-Versuche geschuetzt.
 
 ## Production-Start
 
@@ -30,6 +31,13 @@ curl http://localhost:8080/actuator/health
 
 ## Bewusste Grenzen
 
-- Rate Limiting ist noch nicht umgesetzt. Fuer echte Produktion sollte eine cluster-faehige Loesung am Gateway oder mit gemeinsamem Backend genutzt werden.
+Das Rate Limiting ist absichtlich einfach gehalten:
+
+```yaml
+ticket-system.rate-limit.api.requests-per-minute: 120
+ticket-system.rate-limit.login.requests-per-minute: 10
+```
+
+Die Umsetzung ist in-memory und damit nicht cluster-faehig. Fuer echte Produktion mit mehreren Instanzen sollte das Limit am Gateway, Load Balancer oder mit gemeinsamem Backend wie Redis umgesetzt werden.
 - Die Demo-Zugaenge sind nur fuer lokale Demo-Umgebungen gedacht.
 - Backup/Restore, externe Secret Stores und Deployment-Konfiguration sind nicht Teil dieses Projekts.

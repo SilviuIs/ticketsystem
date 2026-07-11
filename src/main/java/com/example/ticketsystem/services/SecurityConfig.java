@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -20,10 +21,26 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
+	private final RateLimitService rateLimitService;
+	private final int apiRequestsPerMinute;
+	private final int loginRequestsPerMinute;
+
+	public SecurityConfig(
+			RateLimitService rateLimitService,
+			@Value("${ticket-system.rate-limit.api.requests-per-minute:120}") int apiRequestsPerMinute,
+			@Value("${ticket-system.rate-limit.login.requests-per-minute:10}") int loginRequestsPerMinute
+	) {
+		this.rateLimitService = rateLimitService;
+		this.apiRequestsPerMinute = apiRequestsPerMinute;
+		this.loginRequestsPerMinute = loginRequestsPerMinute;
+	}
 
 	@Bean
 	@Order(1)
@@ -51,12 +68,13 @@ public class SecurityConfig {
 				.csrf(AbstractHttpConfigurer::disable)
 				.formLogin(AbstractHttpConfigurer::disable)
 				.logout(AbstractHttpConfigurer::disable)
+				.addFilterBefore(rateLimitingFilter(objectMapper), BasicAuthenticationFilter.class)
 				.build();
 	}
 
 	@Bean
 	@Order(2)
-	SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain webSecurityFilterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
 		return http
 				.authorizeHttpRequests(authorize -> authorize
 						.requestMatchers("/css/**", "/login").permitAll()
@@ -81,6 +99,7 @@ public class SecurityConfig {
 						.logoutSuccessUrl("/login?logout")
 						.permitAll()
 				)
+				.addFilterBefore(rateLimitingFilter(objectMapper), UsernamePasswordAuthenticationFilter.class)
 				.build();
 	}
 
@@ -94,6 +113,10 @@ public class SecurityConfig {
 		return JsonMapper.builder()
 				.findAndAddModules()
 				.build();
+	}
+
+	private RateLimitingFilter rateLimitingFilter(ObjectMapper objectMapper) {
+		return new RateLimitingFilter(rateLimitService, objectMapper, apiRequestsPerMinute, loginRequestsPerMinute);
 	}
 
 	private void writeApiError(

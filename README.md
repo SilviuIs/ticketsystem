@@ -43,6 +43,7 @@ Support kann diesen Vorschlag pruefen und final speichern.
 - Flyway
 - Spring Boot Actuator
 - Maven
+- Einfaches In-Memory-Rate-Limiting fuer Login und REST API
 
 ## Schnellstart fuer Bewertung
 
@@ -340,6 +341,17 @@ curl -u support:password \
 API-Fehler werden in einem einheitlichen JSON-Format geliefert.
 Das gilt auch fuer API-Requests ohne Login oder ohne ausreichende Rolle.
 
+## Rate Limiting
+
+Login und REST API haben ein einfaches In-Memory-Rate-Limit:
+
+```yaml
+ticket-system.rate-limit.api.requests-per-minute: 120
+ticket-system.rate-limit.login.requests-per-minute: 10
+```
+
+Das schuetzt die Demo-Anwendung gegen einfache Brute-Force- und Flooding-Versuche. Fuer mehrere produktive Instanzen braucht man ein cluster-faehiges Limit am Gateway oder mit gemeinsamem Backend.
+
 ## Monitoring
 
 Spring Boot Actuator ist aktiviert.
@@ -371,6 +383,7 @@ Die Tests pruefen unter anderem:
 - API- und Web-Security
 - API-Fehlerformat
 - Actuator Health
+- Rate Limiting fuer Login und REST API
 
 Wichtig: Die automatischen Tests nutzen das Profil `test` mit einer H2-In-Memory-Datenbank.
 Darum ist fuer `./mvnw test` kein lokaler MySQL-Server noetig.
@@ -393,10 +406,10 @@ docs/testprotokoll.md
 - Automatische Tests laufen mit einer H2-In-Memory-Datenbank im Profil `test`.
 - Produktionszugangsdaten werden ueber Umgebungsvariablen gelesen.
 - Wichtige Domain-Aktionen werden in `audit_events` nachvollziehbar gespeichert.
+- Rate Limiting ist bewusst in-memory gehalten und fuer mehrere Instanzen an Gateway oder Shared Backend auszulagern.
 
 ## Moegliche Erweiterungen
 
-- Cluster-faehiges Rate Limiting fuer Login und API
 - Audit-Log-Tabelle fuer langfristige Nachvollziehbarkeit
 - Mehr End-to-End-Tests fuer die Weboberflaeche
 - Export oder Druckansicht fuer das Testprotokoll
